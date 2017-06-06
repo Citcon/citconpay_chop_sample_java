@@ -151,7 +151,7 @@ public class Citcon {
 		flat_reply.append("token=" + token);
 		String flat_reply_MD5 = flat_reply.toString();
 
-		logger.debug("string=" + flat_reply_MD5);
+		logger.error(">>>>> flat_reply in ipn is " + flat_reply_MD5);
 		MessageDigest md = null;
 
 		try {
@@ -162,7 +162,10 @@ public class Citcon {
 
 		md.update(flat_reply_MD5.getBytes());
 		byte[] digest = md.digest();
-		return DatatypeConverter.printHexBinary(digest).toLowerCase();
+		
+		String md5 = DatatypeConverter.printHexBinary(digest).toLowerCase();
+		logger.error(">>>>>" +  md5 + ">>>>>>>>");
+		return md5;
 	}
 
 	@RequestMapping("/ipn")

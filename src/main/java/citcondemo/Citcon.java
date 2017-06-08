@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
@@ -35,6 +36,8 @@ import org.apache.log4j.Logger;
 
 @Controller
 public class Citcon {
+
+	private static Logger logger = Logger.getLogger(Citcon.class);
 
 	@RequestMapping("/receipt_success")
 	public String receipt(
@@ -121,8 +124,6 @@ public class Citcon {
 		}
 	}
 
-	private static Logger logger = Logger.getLogger(Citcon.class);
-
 	public void update_order(String reference, String notify_status, String time, String id, String notify_id) {
 		logger.error("in ipn, update_order with " + reference + ", " + notify_status + ", " + time + ", " + id + ", "
 				+ notify_id);
@@ -132,26 +133,23 @@ public class Citcon {
 		logger.error("in ipn, start_fulfillment with " + reference);
 	}
 
-	public String sign_ipn(HashMap<String, String> reply, String token) {
+	public String sign_ipn(Map<String, String> reply, String token) {
 
 		StringBuilder flat_reply = new StringBuilder();
 		SortedSet<String> sortedKeys = new TreeSet<String>(reply.keySet());
 
 		for (String key : sortedKeys) {
-
 			String val = reply.get(key);
-
 			if (val == null) {
 				val = "";
 			}
-
 			flat_reply.append(key + "=" + val + "&");
 		}
 
 		flat_reply.append("token=" + token);
 		String flat_reply_MD5 = flat_reply.toString();
 
-		logger.error(">>>>> flat_reply in ipn is " + flat_reply_MD5);
+		logger.debug("string=" + flat_reply_MD5);
 		MessageDigest md = null;
 
 		try {
@@ -162,10 +160,7 @@ public class Citcon {
 
 		md.update(flat_reply_MD5.getBytes());
 		byte[] digest = md.digest();
-		
-		String md5 = DatatypeConverter.printHexBinary(digest).toLowerCase();
-		logger.error(">>>>>" +  md5 + ">>>>>>>>");
-		return md5;
+		return DatatypeConverter.printHexBinary(digest).toLowerCase();
 	}
 
 	@RequestMapping("/ipn")
@@ -186,7 +181,7 @@ public class Citcon {
 
 		logger.error(">>>>> in chopdemo ipn receiver >>>>>");
 
-		HashMap<String, String> listOfParams = new HashMap<String, String>();
+		Map<String, String> listOfParams = new HashMap<String, String>();
 		listOfParams.put("id", id);
 		listOfParams.put("amount", amount);
 		listOfParams.put("notify_status", notify_status);
@@ -197,7 +192,7 @@ public class Citcon {
 		listOfParams.put("partner_id", partner_id);
 		listOfParams.put("sign", sign);
 
-		HashSet<String> sortedKeys = new HashSet<String>(listOfParams.keySet());
+		Set<String> sortedKeys = new HashSet<String>(listOfParams.keySet());
 
 		for (String keys : sortedKeys) {
 			logger.error(keys + "=" + listOfParams.get(keys));
@@ -205,7 +200,7 @@ public class Citcon {
 
 		logger.error(">>>>> end of chopdemo ipn");
 
-		HashMap<String, String> data = new HashMap<String, String>();
+		Map<String, String> data = new HashMap<String, String>();
 
 		data.put("fields", fields);
 
